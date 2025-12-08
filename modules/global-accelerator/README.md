@@ -14,7 +14,7 @@ Usage example (see examples/complete for a full working example):
 
 ```hcl
 module "ga" {
-  source = "../.."
+  source = "../../modules/global-accelerator"
 
   name                  = "example-ga"
   ip_address_type       = "IPV4"
@@ -23,13 +23,13 @@ module "ga" {
 
   albs = [
     {
-      arn                     = "arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/alb-1/abcd"
+      arn                     = "arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-alb/abcd1234"
       region                  = "us-west-2"
       weight                  = 100
       client_ip_preservation  = true
     },
     {
-      arn    = "arn:aws:elasticloadbalancing:eu-central-1:123456789012:loadbalancer/app/alb-2/efgh"
+      arn    = "arn:aws:elasticloadbalancing:eu-central-1:123456789012:loadbalancer/app/my-alb/efgh5678"
       region = "eu-central-1"
     }
   ]

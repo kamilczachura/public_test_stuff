@@ -4,7 +4,7 @@ provider "aws" {
 }
 
 module "ga_example" {
-  source = "../../"
+  source = "../../modules/global-accelerator"
 
   name                 = "example-ga"
   ip_address_type      = "IPV4"
