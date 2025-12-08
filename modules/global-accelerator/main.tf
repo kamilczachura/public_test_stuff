@@ -25,7 +25,7 @@ resource "aws_globalaccelerator_listener" "this" {
 # Group ALBs by region so we can create one endpoint group per region.
 locals {
   # Build distinct list of regions present in var.albs
-  alb_regions = distinct([for a in var.albs : a["region"])
+  alb_regions = distinct([for a in var.albs : a["region"]])
 
   # Map region -> list of alb objects in that region
   albs_by_region = {
