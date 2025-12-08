@@ -1,25 +1,41 @@
-module "global_accelerator" {
-  source = "./modules/global-accelerator"
-
-  name           = "moj-global-accelerator"
-  endpoint_region = "eu-central-1"
-  
-  load_balancer_arns = [
-    "arn:aws:elasticloadbalancing:eu-central-1:123456789012:loadbalancer/app/alb-1/abc123",
-    "arn:aws:elasticloadbalancing:eu-central-1:123456789012:loadbalancer/app/alb-2/def456",
-    "arn:aws:elasticloadbalancing:eu-central-1:123456789012:loadbalancer/app/alb-3/ghi789"
-  ]
-
-  tags = {
-    Environment = "production"
-    Project     = "moj-projekt"
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
   }
 }
 
-output "ga_static_ips" {
-  value = module.global_accelerator.static_ip_addresses
+# variables.tf
+variable "resource_arns" {
+  description = "List of resource ARNs to protect with AWS Shield Advanced"
+  type        = list(string)
 }
 
-output "ga_dns_name" {
-  value = module.global_accelerator.accelerator_dns_name
+variable "tags" {
+  description = "Tags to assign to Shield protections"
+  type        = map(string)
+  default     = {}
+}
+
+# main.tf
+resource "aws_shield_protection" "this" {
+  for_each = toset(var.resource_arns)
+
+  name         = "shield-protection-${replace(each.value, "/.*\\//", "")}"
+  resource_arn = each.value
+
+  tags = var.tags
+}
+
+# outputs.tf
+output "protection_ids" {
+  description = "Map of resource ARNs to their Shield protection IDs"
+  value       = { for k, v in aws_shield_protection.this : k => v.id }
+}
+
+output "protected_resources" {
+  description = "List of protected resource ARNs"
+  value       = [for p in aws_shield_protection.this : p.resource_arn]
 }
